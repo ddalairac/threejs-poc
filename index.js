@@ -6,7 +6,7 @@ import * as THREE from './node_modules/three/build/three.module.js';
 
 // console.log('THREE module',THREE)
 
-// Setup 3D stage
+/* Setup 3D stage **********************************************************************/
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
   75 /*lens field of view*/,
@@ -16,37 +16,65 @@ const camera = new THREE.PerspectiveCamera(
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(innerWidth, innerHeight);
 renderer.setPixelRatio(devicePixelRatio)
-
-console.log(scene);
-console.log(camera);
-console.log(renderer);
-
 document.body.appendChild(renderer.domElement);
 
+// const helper = new THREE.CameraHelper( camera );
+// scene.add( helper );
 
-// Create elements
+
+/* Create elements **********************************************************************/
 const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
-const material1 = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-const boxMesh = new THREE.Mesh(boxGeometry, material1);
+// const boxMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 }); // lights do not aplly
+const boxMaterial = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
+const boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
 scene.add(boxMesh);
 
-const planeGeometry = new THREE.PlaneGeometry(2, 2, 10, 10);
-const material2 = new THREE.MeshBasicMaterial({ color: 0xffff00, side: THREE.DoubleSide });
-const planeMesh = new THREE.Mesh(planeGeometry, material2);
+const planeGeometry = new THREE.PlaneGeometry(5, 5, 10, 10);
+// const planeMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00, side: THREE.DoubleSide }); // lights do not aplly
+const planeMaterial = new THREE.MeshPhongMaterial({ 
+  color: 0xffff00, 
+  side: THREE.DoubleSide, 
+  flatShading: true
+});
+const planeMesh = new THREE.Mesh(planeGeometry, planeMaterial);
+planeMesh.position.x = -1;
 scene.add(planeMesh);
 
-console.log(boxGeometry);
-console.log(material1);
-console.log(boxMesh);
+
+// plainRandomZPoints
+const { array } = planeMesh.geometry.attributes.position;
+for (let i = 3; i < array.length; i += 3) {
+  const x = array[i];
+  const y = array[i + 1];
+  const z = array[i + 2];
+
+  array[i + 2] = z + Math.random();
+  console.log(z, array[i + 2])
+}
 
 
-// render element
+
+/* Create Lights **********************************************************************/
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.3); // evenly illuminates the entire stage
+// ambientLight.position.set(1, 1, 1);
+scene.add(ambientLight);
+
+const directionalLight = new THREE.DirectionalLight(0xffffff, 0.7); // generates lights and shadows on the elements
+directionalLight.position.set(3, 3, 3);
+scene.add(directionalLight);
+
+// const directionalLightHelper = new THREE.DirectionalLightHelper(directionalLight, 5);
+// scene.add(directionalLightHelper);
+
+
+/* animation **********************************************************************/
 camera.position.z = 5; /* So is not in the center of the stage */
 
-function moveElements() {
+
+function rotateBox() {
   boxMesh.rotation.x += 0.01;
-  boxMesh.rotation.y += 0.1;
-  planeMesh.rotation.x += 0.1;
+  boxMesh.rotation.y += 0.01;
+  planeMesh.rotation.x += 0.01;
   planeMesh.rotation.y += 0.01;
 }
 
@@ -54,6 +82,6 @@ function moveElements() {
 function animate() {
   requestAnimationFrame(animate);
   renderer.render(scene, camera);
-  moveElements();
+  rotateBox();
 }
 animate(); // start loop
