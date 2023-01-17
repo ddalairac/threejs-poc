@@ -2,7 +2,9 @@
  import * as THREE from './node_modules/three/';
  throw a MIME type Error. The REAL problem is that the file does not exist, or at least it's not at that location.
 */
-import * as THREE from './node_modules/three/build/three.module.js';
+// import * as THREE from './node_modules/three/build/three.module.js';
+// import * as THREE from './node_modules/three/build/three.module.js';
+import * as THREE from './three/three.module.js';
 
 // console.log('THREE module',THREE)
 
@@ -49,7 +51,7 @@ for (let i = 3; i < array.length; i += 3) {
   const z = array[i + 2];
 
   array[i + 2] = z + Math.random();
-  console.log(z, array[i + 2])
+  // console.log(z, array[i + 2])
 }
 
 
