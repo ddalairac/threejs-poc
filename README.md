@@ -1,2 +1,3 @@
-# treejs-poc
-Treejs POC
+# ThreeJS POC
+
+https://ddalairac.github.io/threejs-poc/
