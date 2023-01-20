@@ -1,10 +1,12 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'OrbitControls';
-
-import * as DAT from './node_modules/dat.gui/build/dat.gui.module.js';
+// import * as DAT from './node_modules/dat.gui/build/dat.gui.module.js';
+import * as DAT from 'datgui';
 
 
 /* Setup 3D stage **********************************************************************/
+const raycaster = new THREE.Raycaster(); /** Monitor touch */
+const pointer = new THREE.Vector2();
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
   75 /*lens field of view*/,
@@ -21,11 +23,11 @@ document.body.appendChild(renderer.domElement);
 
 
 /* Create elements **********************************************************************/
-const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
-// const boxMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 }); // lights do not aplly
-const boxMaterial = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
-const boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
-scene.add(boxMesh);
+// const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
+// // const boxMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 }); // lights do not aplly
+// const boxMaterial = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
+// const boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
+// scene.add(boxMesh);
 
 const planeGeometry = new THREE.PlaneGeometry(5, 5, 10, 10);
 // const planeMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00, side: THREE.DoubleSide }); // lights do not aplly
@@ -67,26 +69,6 @@ scene.add(directionalLight);
 // scene.add(directionalLightHelper);
 
 
-/* animation **********************************************************************/
-camera.position.z = 5; /* So is not in the center of the stage */
-
-
-function rotateBox() {
-  boxMesh.rotation.x += 0.01;
-  boxMesh.rotation.y += 0.01;
-  planeMesh.rotation.x += 0.01;
-  planeMesh.rotation.y += 0.01;
-}
-
-// loop
-function animate() {
-  requestAnimationFrame(animate);
-  renderer.render(scene, camera);
-  rotateBox();
-}
-animate(); // start loop
-
-
 /* GUI to change props **********************************************************************/
 const gui = new DAT.GUI()
 const world = {
@@ -110,3 +92,65 @@ gui.add(world.plane, 'heightSegments', 1, 500).onChange(onChangePlane);
 
 /* Orbit Camera **********************************************************************/
 new OrbitControls(camera, renderer.domElement);
+
+
+/* Hover Event **********************************************************************/
+// const mouse = new THREE.Vector2();
+// const mouse = {
+//   x:undefined,
+//   y:undefined,
+// }
+var firstMousemove = false;
+function onPointerMove(event) {
+  // function onMousemove(event){
+  /** Calculate pointer position in normalized device coordinates
+  (-1 to +1) for both components
+  In treejs X goes from -1(left) to 1(right), and Y goes from 1(top) to -1 (bottom). Leaving the 0 in the center */
+  pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+  pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
+}
+function onMouseMove(){ 
+  console.log('firstMousemove', firstMousemove)
+  firstMousemove = true 
+  console.log('firstMousemove', firstMousemove)
+  removeEventListener('mousemove', onMouseMove)
+}
+addEventListener('mousemove', onMouseMove);
+window.addEventListener('pointermove', onPointerMove);
+
+function trackCollision() {
+  // update the picking ray with the camera and pointer position
+  raycaster.setFromCamera(pointer, camera);
+  
+  // calculate objects intersecting the picking ray
+  const intersects = raycaster.intersectObjects(scene.children);
+  if (firstMousemove && intersects.length > 0) {
+    console.log('pointer', pointer)
+    console.log('intersects',intersects)
+    for (let i = 0; i < intersects.length; i++) {
+      intersects[i].object.material.color.set(0xff0000);
+    }
+  }
+  renderer.render(scene, camera);
+}
+
+
+
+/* animation **********************************************************************/
+camera.position.z = 5; /* So is not in the center of the stage */
+
+function rotateElements() {
+  // boxMesh.rotation.x += 0.01;
+  // boxMesh.rotation.y += 0.01;
+  planeMesh.rotation.x += 0.01;
+  planeMesh.rotation.y += 0.01;
+}
+
+// loop
+function animate() {
+  requestAnimationFrame(animate);
+  renderer.render(scene, camera);
+  trackCollision();
+  // rotateElements();
+}
+animate(); // start loop
