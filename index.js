@@ -2,26 +2,27 @@ import * as THREE from 'three';
 import { OrbitControls } from 'OrbitControls';
 import * as DAT from 'datgui';
 
-
-/* Setup 3D stage **********************************************************************/
-const raycaster = new THREE.Raycaster(); /** Monitor touch */
-const pointer = new THREE.Vector2();
+// #region Setup 3D stage **********************************************************************/
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
   75 /*lens field of view*/,
   innerWidth / innerHeight /* aspect ratio */,
   0.1, 1000/* Clipping plane: distance to be cut from camera */
-);
-const renderer = new THREE.WebGLRenderer();
-renderer.setSize(innerWidth, innerHeight);
-renderer.setPixelRatio(devicePixelRatio)
-document.body.appendChild(renderer.domElement);
-
+  );
+  const renderer = new THREE.WebGLRenderer();
+  renderer.setSize(innerWidth, innerHeight);
+  renderer.setPixelRatio(devicePixelRatio)
+  document.body.appendChild(renderer.domElement);
+  const raycaster = new THREE.Raycaster();
+  const pointer = new THREE.Vector2(); /* mouse position */
+  
 // const helper = new THREE.CameraHelper( camera );
 // scene.add( helper );
 
+// #endregion Setup 3D stage
 
-/* Create elements **********************************************************************/
+// #region Create elements *********************************************************************/
+
 // const boxGeometry = new THREE.BoxGeometry(1, 1, 1);
 // // const boxMaterial = new THREE.MeshBasicMaterial({ color: 0x00ff00 }); // lights do not aplly
 // const boxMaterial = new THREE.MeshPhongMaterial({ color: 0x00ff00 });
@@ -53,9 +54,9 @@ function plainRandomZPoints() {
   }
 }
 plainRandomZPoints()
+// #endregion Create elements
 
-
-/* Create Lights **********************************************************************/
+// #region Create Lights ***********************************************************************/
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.1); // evenly illuminates the entire stage
 // ambientLight.position.set(1, 1, 1);
 scene.add(ambientLight);
@@ -67,8 +68,9 @@ scene.add(directionalLight);
 // const directionalLightHelper = new THREE.DirectionalLightHelper(directionalLight, 5);
 // scene.add(directionalLightHelper);
 
+// #endregion Create Lights
 
-/* GUI to change props **********************************************************************/
+// #region GUI to change props *****************************************************************/
 const gui = new DAT.GUI()
 const world = {
   plane: {
@@ -87,19 +89,22 @@ gui.add(world.plane, 'width', 1, 500).onChange(onChangePlane);
 gui.add(world.plane, 'height', 1, 500).onChange(onChangePlane);
 gui.add(world.plane, 'widthSegments', 1, 500).onChange(onChangePlane);
 gui.add(world.plane, 'heightSegments', 1, 500).onChange(onChangePlane);
+// #endregion GUI to change props
 
-
-/* Orbit Camera **********************************************************************/
+// #region Orbit Camera ************************************************************************/
 new OrbitControls(camera, renderer.domElement);
+// #endregion GUI to change props
 
+// #region Hover Event *************************************************************************/
 
-/* Hover Event **********************************************************************/
-// const mouse = new THREE.Vector2();
-// const mouse = {
-//   x:undefined,
-//   y:undefined,
-// }
+// prevent collision by default pointer position (x:0 y:0)
 var firstMousemove = false;
+function onMouseMove(){ 
+  firstMousemove = true 
+  removeEventListener('mousemove', onMouseMove)
+}
+addEventListener('mousemove', onMouseMove);
+
 function onPointerMove(event) {
   // function onMousemove(event){
   /** Calculate pointer position in normalized device coordinates
@@ -108,14 +113,7 @@ function onPointerMove(event) {
   pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
   pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
 }
-function onMouseMove(){ 
-  console.log('firstMousemove', firstMousemove)
-  firstMousemove = true 
-  console.log('firstMousemove', firstMousemove)
-  removeEventListener('mousemove', onMouseMove)
-}
-addEventListener('mousemove', onMouseMove);
-window.addEventListener('pointermove', onPointerMove);
+addEventListener('pointermove', onPointerMove);
 
 function trackCollision() {
   // update the picking ray with the camera and pointer position
@@ -130,12 +128,11 @@ function trackCollision() {
       intersects[i].object.material.color.set(0xff0000);
     }
   }
-  renderer.render(scene, camera);
 }
 
+// #endregion Hover Event
 
-
-/* animation **********************************************************************/
+// #region animation ***************************************************************************/
 camera.position.z = 5; /* So is not in the center of the stage */
 
 function rotateElements() {
@@ -148,8 +145,10 @@ function rotateElements() {
 // loop
 function animate() {
   requestAnimationFrame(animate);
-  renderer.render(scene, camera);
   trackCollision();
   // rotateElements();
+  renderer.render(scene, camera);
 }
 animate(); // start loop
+
+// #endregion animation
