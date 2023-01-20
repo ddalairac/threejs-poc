@@ -22,8 +22,8 @@
   },
   "homepage": "https://github.com/ddalairac/treejs-poc#readme",
   "dependencies": {
+    "dat.gui": "^0.7.9"
   },
   "devDependencies": {
-    "dat.gui": "^0.7.9"
   }
 }
