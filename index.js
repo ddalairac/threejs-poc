@@ -55,18 +55,22 @@ function plainRandomZPoints() {
     // console.log(z, array[i + 2])
   }
   planeOriginalPositionArray = [...array]
+  setPointsColors();
 }
 plainRandomZPoints()
 
 // Set poligon color
-const colors = []
-for (let i = 0; i < planeMesh.geometry.attributes.position.count; i++) {
-  colors.push(1, 0, 0);
+function setPointsColors() {
+  const colors = []
+  for (let i = 0; i < planeMesh.geometry.attributes.position.count; i++) {
+    colors.push(1, 0, 0);
+  }
+  planeMesh.geometry.setAttribute('color', new THREE.BufferAttribute(
+    new Float32Array(colors, /* [0, 0, 1] color goes from 0 to 1 */),
+    3 /* amaunt of data entries*/
+  ))
 }
-planeMesh.geometry.setAttribute('color', new THREE.BufferAttribute(
-  new Float32Array(colors, /* [0, 0, 1] color goes from 0 to 1 */),
-  3 /* amaunt of data entries*/
-))
+
 /** Get the intercep face, and set each vertex color (0 to 1) */
 function setIntersectFaceColor(intersects, red = 1, green = 0, blue = 0) {
   if (intersects.length < 1) {
@@ -173,6 +177,9 @@ function trackCollision() {
 
   if (firstMousemove && intersects.length > 0) {
     setIntersectFaceColor(intersects, 0, 1, 0);
+    setTimeout(() => {
+      setIntersectFaceColor(intersects, 1,0,0)
+    }, 300);
   }
 }
 
