@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'OrbitControls';
-// import * as DAT from './node_modules/dat.gui/build/dat.gui.module.js';
 import * as DAT from 'datgui';
 
 
