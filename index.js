@@ -1,6 +1,8 @@
-import * as THREE from 'three';
-import { OrbitControls } from 'OrbitControls';
-import * as DAT from 'datgui';
+import * as THREE from 'three'; // 3D Lib
+import { OrbitControls } from 'OrbitControls'; // mouse controlled camera class, from threejs
+import * as DAT from 'datgui'; // live attr ui edit
+import gsap from 'gsap'; // animation lib
+
 
 // #region Setup 3D stage **********************************************************************/
 const scene = new THREE.Scene();
@@ -72,26 +74,28 @@ function setPointsColors() {
 }
 
 /** Get the intercep face, and set each vertex color (0 to 1) */
-function setIntersectFaceColor(intersects, red = 1, green = 0, blue = 0) {
+function setIntersectFaceColor(intersects, RGB) {
   if (intersects.length < 1) {
     console.error('setIntersectFaceColor: no intersect geometry');
     return
   }
-  const { face } = intersects[0]
-  const { color } = intersects[0].object.geometry.attributes
-  // vertice 1
-  color.setX(face.a, red)
-  color.setY(face.a, green)
-  color.setZ(face.a, blue)
-  // vertice 2
-  color.setX(face.b, red)
-  color.setY(face.b, green)
-  color.setZ(face.b, blue)
-  // vertice 3
-  color.setX(face.c, red)
-  color.setY(face.c, green)
-  color.setZ(face.c, blue)
-  color.needsUpdate = true
+  const { face } = intersects[0];
+  const { color } = intersects[0].object.geometry.attributes;
+  // x, y & z vertex are in the same index as the colors
+
+  // vertex 1
+  color.setX(face.a, RGB.r);
+  color.setY(face.a, RGB.g);
+  color.setZ(face.a, RGB.b);
+  // vertex 2
+  color.setX(face.b, RGB.r);
+  color.setY(face.b, RGB.g);
+  color.setZ(face.b, RGB.b);
+  // vertex 3
+  color.setX(face.c, RGB.r);
+  color.setY(face.c, RGB.g);
+  color.setZ(face.c, RGB.b);
+  color.needsUpdate = true;
 }
 
 // #endregion Create elements
@@ -176,10 +180,24 @@ function trackCollision() {
   // const intersects = raycaster.intersectObjects(scene.children); // eval all or array
 
   if (firstMousemove && intersects.length > 0) {
-    setIntersectFaceColor(intersects, 0, 1, 0);
-    setTimeout(() => {
-      setIntersectFaceColor(intersects, 1,0,0)
-    }, 300);
+
+    const initialColor = { r: 1, g: 0, b: 0 }
+    const hoverColor = { r: 0, g: 1, b: 0 }
+    setIntersectFaceColor(intersects, hoverColor);
+
+    //   setTimeout(() => {
+    //     setIntersectFaceColor(intersects, 1, 0, 0)
+    //   }, 300);
+
+    gsap.to(hoverColor, {
+      r: initialColor.r,
+      g: initialColor.g,
+      b: initialColor.b,
+      onUpdate: () => {
+        console.log('update')
+        setIntersectFaceColor(intersects, hoverColor)
+      }
+    })
   }
 }
 
