@@ -1,12 +1,8 @@
-/**
- import * as THREE from './node_modules/three/';
- throw a MIME type Error. The REAL problem is that the file does not exist, or at least it's not at that location.
-*/
-// import * as THREE from './node_modules/three/build/three.module.js';
-// import * as THREE from './node_modules/three/build/three.module.js';
-import * as THREE from './three/three.module.js';
+import * as THREE from 'three';
+import { OrbitControls } from 'OrbitControls';
 
-// console.log('THREE module',THREE)
+import * as DAT from './node_modules/dat.gui/build/dat.gui.module.js';
+
 
 /* Setup 3D stage **********************************************************************/
 const scene = new THREE.Scene();
@@ -33,9 +29,9 @@ scene.add(boxMesh);
 
 const planeGeometry = new THREE.PlaneGeometry(5, 5, 10, 10);
 // const planeMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00, side: THREE.DoubleSide }); // lights do not aplly
-const planeMaterial = new THREE.MeshPhongMaterial({ 
-  color: 0xffff00, 
-  side: THREE.DoubleSide, 
+const planeMaterial = new THREE.MeshPhongMaterial({
+  color: 0xffff00,
+  side: THREE.DoubleSide,
   flatShading: true
 });
 const planeMesh = new THREE.Mesh(planeGeometry, planeMaterial);
@@ -44,20 +40,22 @@ scene.add(planeMesh);
 
 
 // plainRandomZPoints
-const { array } = planeMesh.geometry.attributes.position;
-for (let i = 3; i < array.length; i += 3) {
-  const x = array[i];
-  const y = array[i + 1];
-  const z = array[i + 2];
+function plainRandomZPoints() {
+  const { array } = planeMesh.geometry.attributes.position;
+  for (let i = 3; i < array.length; i += 3) {
+    const x = array[i];
+    const y = array[i + 1];
+    const z = array[i + 2];
 
-  array[i + 2] = z + Math.random();
-  // console.log(z, array[i + 2])
+    array[i + 2] = z + Math.random();
+    // console.log(z, array[i + 2])
+  }
 }
-
+plainRandomZPoints()
 
 
 /* Create Lights **********************************************************************/
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.3); // evenly illuminates the entire stage
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.1); // evenly illuminates the entire stage
 // ambientLight.position.set(1, 1, 1);
 scene.add(ambientLight);
 
@@ -87,3 +85,28 @@ function animate() {
   rotateBox();
 }
 animate(); // start loop
+
+
+/* GUI to change props **********************************************************************/
+const gui = new DAT.GUI()
+const world = {
+  plane: {
+    width: 10,
+    height: 10,
+    widthSegments: 10,
+    heightSegments: 10
+  }
+}
+function onChangePlane() {
+  planeMesh.geometry.dispose()
+  planeMesh.geometry = new THREE.PlaneGeometry(world.plane.width, world.plane.height, world.plane.widthSegments, world.plane.widthSegments);
+  plainRandomZPoints()
+}
+gui.add(world.plane, 'width', 1, 500).onChange(onChangePlane);
+gui.add(world.plane, 'height', 1, 500).onChange(onChangePlane);
+gui.add(world.plane, 'widthSegments', 1, 500).onChange(onChangePlane);
+gui.add(world.plane, 'heightSegments', 1, 500).onChange(onChangePlane);
+
+
+/* Orbit Camera **********************************************************************/
+new OrbitControls(camera, renderer.domElement);
