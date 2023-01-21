@@ -45,22 +45,24 @@ scene.add(planeMesh);
 
 
 // plainRandom_Z_Points
-var planeOriginalPositionArray = [];
+var zIncrease = 1;
+var arrayOriginal = new Float32Array();
 function plainRandomZPoints() {
   const { array } = planeMesh.geometry.attributes.position;
   for (let i = 3; i < array.length; i += 3) {
     // const x = array[i];
     // const y = array[i + 1];
     const z = array[i + 2];
-
-    array[i + 2] = z + Math.random();
-    // console.log(z, array[i + 2])
+    array[i + 2] = z + Math.random() * zIncrease;
+    console.log('z1', array[2])
   }
-  planeOriginalPositionArray = [...array]
+  arrayOriginal = array
   setPointsColors();
 }
+
 plainRandomZPoints()
 
+// #region Element Color ***********************************************************************/
 // Set poligon color
 function setPointsColors() {
   const colors = []
@@ -98,7 +100,7 @@ function setIntersectFaceColor(intersects, RGB) {
   color.needsUpdate = true;
 }
 
-// #endregion Create elements
+// #endregion Element Color
 
 // #region Create Lights ***********************************************************************/
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.1); // evenly illuminates the entire stage
@@ -132,19 +134,20 @@ function onChangePlane() {
 }
 
 function onChangeZDeepPlane() {
-  const array = [...planeOriginalPositionArray];
-  console.log('array', array)
+  planeMesh.geometry.dispose()
+  zIncrease = world.plane.zDeep;
+  const array = new Float32Array(arrayOriginal)
   for (let i = 3; i < array.length; i += 3) {
     const z = array[i + 2];
-    array[i + 2] = z + Math.random() * world.plane.zDeep;
+    array[i + 2] = z * zIncrease;
+    planeMesh.geometry.attributes.position.array = array;
   }
-  planeMesh.geometry.attributes.position.array = array;
 }
-gui.add(world.plane, 'width', 1, 500).onChange(onChangePlane);
-gui.add(world.plane, 'height', 1, 500).onChange(onChangePlane);
-gui.add(world.plane, 'widthSegments', 1, 500).onChange(onChangePlane);
-gui.add(world.plane, 'heightSegments', 1, 500).onChange(onChangePlane);
-gui.add(world.plane, 'zDeep', 1, 10).onChange(onChangeZDeepPlane);
+gui.add(world.plane, 'width', 1, 100).onChange(onChangePlane);
+gui.add(world.plane, 'height', 1, 100).onChange(onChangePlane);
+gui.add(world.plane, 'widthSegments', 1, 100).onChange(onChangePlane);
+gui.add(world.plane, 'heightSegments', 1, 100).onChange(onChangePlane);
+gui.add(world.plane, 'zDeep', 0.1, 5).onChange(onChangeZDeepPlane);
 
 // #endregion GUI to change props
 
@@ -152,7 +155,7 @@ gui.add(world.plane, 'zDeep', 1, 10).onChange(onChangeZDeepPlane);
 new OrbitControls(camera, renderer.domElement);
 // #endregion GUI to change props
 
-// #region Hover Event *************************************************************************/
+// #region Hover Event Collision ***************************************************************/
 
 // prevent collision by default pointer position (x:0 y:0)
 var firstMousemove = false;
@@ -181,8 +184,8 @@ function trackCollision() {
 
   if (firstMousemove && intersects.length > 0) {
 
-    const initialColor = { r: 1, g: 0, b: 0 }
-    const hoverColor = { r: 0, g: 1, b: 0 }
+    const initialColor = { r: 0.9, g: 0, b: 0 }
+    const hoverColor = { r: 2, g: 0.5, b: 0.5 }
     setIntersectFaceColor(intersects, hoverColor);
 
     //   setTimeout(() => {
