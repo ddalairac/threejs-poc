@@ -31,7 +31,7 @@ const pointer = new THREE.Vector2(); /* mouse position */
 // const boxMesh = new THREE.Mesh(boxGeometry, boxMaterial);
 // scene.add(boxMesh);
 
-const planeGeometry = new THREE.PlaneGeometry(5, 5, 10, 10);
+const planeGeometry = new THREE.PlaneGeometry(200, 200, 200, 200);
 // const planeMaterial = new THREE.MeshBasicMaterial({ color: 0xffff00, side: THREE.DoubleSide }); // lights do not aplly
 const planeMaterial = new THREE.MeshPhongMaterial({
   // color: 0xffff00, // vertexColors interfere with color attr
@@ -45,22 +45,29 @@ scene.add(planeMesh);
 
 
 // plainRandom_Z_Points
-var zIncrease = 1;
-var arrayOriginal = new Float32Array();
+var zIncrease = 0.5;
 function plainRandomZPoints() {
+  const randomValues = []
   const { array } = planeMesh.geometry.attributes.position;
-  for (let i = 3; i < array.length; i += 3) {
-    // const x = array[i];
-    // const y = array[i + 1];
-    const z = array[i + 2];
-    array[i + 2] = z + Math.random() * zIncrease;
-    console.log('z1', array[2])
+  for (let i = 0; i < array.length; i++) {
+    // each 3 iterations
+    if (i % 3 == 0) {
+      // array[i] += Math.random() * 0.2 // x;
+      // array[i + 1] += Math.random() * 0.2; // y
+      const z = array[i + 2];
+      array[i + 2] = z + Math.random() * zIncrease;
+    }
+    // every iterations
+    randomValues.push(Math.random());
   }
-  arrayOriginal = array
+  planeMesh.geometry.attributes.position.arrayInitial = new Float32Array(array) // for z gui edit
+  planeMesh.geometry.attributes.position.arrayOrigen = new Float32Array(array)
+  planeMesh.geometry.attributes.position.randomValues = new Float32Array(randomValues)
   setPointsColors();
 }
 
 plainRandomZPoints()
+// #endregion  Create elements
 
 // #region Element Color ***********************************************************************/
 // Set poligon color
@@ -120,34 +127,36 @@ scene.add(directionalLight);
 const gui = new DAT.GUI()
 const world = {
   plane: {
-    width: 10,
-    height: 10,
-    widthSegments: 10,
-    heightSegments: 10,
-    zDeep: 1
+    width: planeGeometry.parameters.width,
+    height: planeGeometry.parameters.height,
+    widthSegments: planeGeometry.parameters.widthSegments,
+    heightSegments: planeGeometry.parameters.heightSegments,
+    zDeep: zIncrease
   }
 }
 function onChangePlane() {
   planeMesh.geometry.dispose()
-  planeMesh.geometry = new THREE.PlaneGeometry(world.plane.width, world.plane.height, world.plane.widthSegments, world.plane.widthSegments);
+  planeMesh.geometry = new THREE.PlaneGeometry(world.plane.width, world.plane.height, world.plane.widthSegments, world.plane.heightSegments);
   plainRandomZPoints()
 }
 
+
 function onChangeZDeepPlane() {
-  planeMesh.geometry.dispose()
+  planeMesh.geometry.dispose();
   zIncrease = world.plane.zDeep;
-  const array = new Float32Array(arrayOriginal)
-  for (let i = 3; i < array.length; i += 3) {
-    const z = array[i + 2];
-    array[i + 2] = z * zIncrease;
-    planeMesh.geometry.attributes.position.array = array;
+  const { array, arrayInitial, arrayOrigen } = planeMesh.geometry.attributes.position;
+  const newZOrigen = new Float32Array(arrayOrigen)
+  for (let i = 0; i < newZOrigen.length; i += 3) {
+    /* z */ newZOrigen[i + 2] = arrayInitial[i + 2] * zIncrease;
+    /* z */ array[i + 2] = arrayInitial[i + 2] * zIncrease;
   }
+  planeMesh.geometry.attributes.position.arrayOrigen = newZOrigen;
 }
-gui.add(world.plane, 'width', 1, 100).onChange(onChangePlane);
-gui.add(world.plane, 'height', 1, 100).onChange(onChangePlane);
-gui.add(world.plane, 'widthSegments', 1, 100).onChange(onChangePlane);
-gui.add(world.plane, 'heightSegments', 1, 100).onChange(onChangePlane);
-gui.add(world.plane, 'zDeep', 0.1, 5).onChange(onChangeZDeepPlane);
+gui.add(world.plane, 'width', 1, 500).onChange(onChangePlane);
+gui.add(world.plane, 'height', 1, 500).onChange(onChangePlane);
+gui.add(world.plane, 'widthSegments', 1, 500).onChange(onChangePlane);
+gui.add(world.plane, 'heightSegments', 1, 500).onChange(onChangePlane);
+gui.add(world.plane, 'zDeep', 0, 10.5).onChange(onChangeZDeepPlane);
 
 // #endregion GUI to change props
 
@@ -197,7 +206,7 @@ function trackCollision() {
       g: initialColor.g,
       b: initialColor.b,
       onUpdate: () => {
-        console.log('update')
+        // console.log('update color')
         setIntersectFaceColor(intersects, hoverColor)
       }
     })
@@ -209,18 +218,30 @@ function trackCollision() {
 // #region animation ***************************************************************************/
 camera.position.z = 5; /* So is not in the center of the stage */
 
-function rotateElements() {
-  // boxMesh.rotation.x += 0.01;
-  // boxMesh.rotation.y += 0.01;
-  planeMesh.rotation.x += 0.01;
-  planeMesh.rotation.y += 0.01;
+// function rotateElements() {
+//   // boxMesh.rotation.x += 0.01;
+//   // boxMesh.rotation.y += 0.01;
+//   planeMesh.rotation.x += 0.01;
+//   planeMesh.rotation.y += 0.01;
+// }
+function wavePoints() {
+  const { array, arrayOrigen, randomValues } = planeMesh.geometry.attributes.position;
+  for (let i = 0; i < array.length; i += 3) {
+    /* x */ array[i] = arrayOrigen[i] + Math.cos(frame * 0.3 + randomValues[i]) * 0.5;
+    /* y */ array[i + 1] = arrayOrigen[i + 1] + (Math.cos(frame * 0.6 + randomValues[i + 1]) * 0.5);
+    /* z */ array[i + 2] = arrayOrigen[i + 2] + (Math.cos(frame*0.9 + randomValues[i + 2] ) * 0.3);
+  }
+  planeMesh.geometry.attributes.position.needsUpdate = true;
 }
 
 // loop
+var frame = 0
 function animate() {
+  frame += 0.021;
   requestAnimationFrame(animate);
-  trackCollision();
   // rotateElements();
+  trackCollision();
+  wavePoints();
   renderer.render(scene, camera);
 }
 animate(); // start loop
