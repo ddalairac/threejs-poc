@@ -219,7 +219,7 @@ gui.add(world.plane, 'zDeep', 0, 10.5).onChange(onChangeZDeepPlane);
 // gui.add(world.plane, 'camaraXRot', 0, 5.9).onChange(()=>{camera.rotation.x = world.plane.camaraXRot;console.log});
 // gui.add(world.plane, 'camaraYRot', 0, 5.9).onChange(()=>{camera.rotation.y = world.plane.camaraYRot;});
 // gui.add(world.plane, 'camaraZRot', 0, 5.9).onChange(()=>{camera.rotation.z = world.plane.camaraZRot;});
-
+gui.close();
 // #endregion GUI to change props
 
 
