@@ -11,6 +11,8 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  opacity: 0;
+  transform: translateY(50px);
 }
 
 .text {
@@ -34,6 +36,8 @@ h2 {
 
 h1,
 h2 {
+  opacity: 0;
+  transform: translateY(30px);
   -webkit-touch-callout: none;
   /* iOS Safari */
   -webkit-user-select: none;

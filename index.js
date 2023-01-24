@@ -274,3 +274,26 @@ animate(); // start loop
 window.threeScript = {
   scene, camera, frame, addGUIcontrols
 }
+
+gsap.to('.app', {
+  opacity: 1,
+  y: 0,
+  duration: 2,
+  delay: 1,
+  ease:'expo',
+});
+gsap.to('h2', {
+  opacity: 1,
+  y: 0,
+  duration: 2,
+  delay: 1.2,
+  ease:'expo',
+});
+
+gsap.to('h1', {
+  opacity: 1,
+  y: 0,
+  duration: 2,
+  delay: 1.4,
+  ease:'expo',
+});
