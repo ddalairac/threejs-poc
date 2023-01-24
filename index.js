@@ -43,8 +43,9 @@ function plainRandomZPoints() {
   for (let i = 0; i < array.length; i++) {
     // each 3 iterations
     if (i % 3 == 0) {
-      // array[i] += Math.random() * 0.2 // x;
-      // array[i + 1] += Math.random() * 0.2; // y
+      /* x */array[i] += Math.random() * 0.2;
+      /* y */array[i + 1] += Math.random() * 0.2;
+      /* z */
       const z = array[i + 2];
       array[i + 2] = z + Math.random() * zIncrease;
     }
@@ -65,7 +66,7 @@ for (let i = 0; i < 10000; i++) {
   const x = (Math.random() - 0.5) * 2000;
   const y = (Math.random() - 0.5) * 2000;
   const z = (Math.random() - 0.5) * 2000;
-  starVertices.push(x,y,z);
+  starVertices.push(x, y, z);
 }
 starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(
   starVertices, 3
@@ -183,57 +184,60 @@ function trackCollision() {
 
 camera.position.y = -100; /* So is not in the center of the stage */
 camera.position.z = 9; /* So is not in the center of the stage */
-camera.rotation.x = 0.87;
-new OrbitControls(camera, renderer.domElement);
+camera.rotation.x = 1.2;
+// new OrbitControls(camera, renderer.domElement);
 // #endregion GUI to change props
 
 // #region GUI to change props *****************************************************************/
-const gui = new DAT.GUI()
-const world = {
-  plane: {
-    width: planeGeometry.parameters.width,
-    height: planeGeometry.parameters.height,
-    widthSegments: planeGeometry.parameters.widthSegments,
-    heightSegments: planeGeometry.parameters.heightSegments,
-    zDeep: zIncrease,
-    // camaraXPos: camera.position.x,
-    // camaraYPos: camera.position.y,
-    // camaraZPos: camera.position.z,
-    // camaraXRot: camera.rotation.x,
-    // camaraYRot: camera.rotation.y,
-    // camaraZRot: camera.rotation.z,
+function addGUIcontrols() {
+  const gui = new DAT.GUI()
+  const world = {
+    plane: {
+      width: planeGeometry.parameters.width,
+      height: planeGeometry.parameters.height,
+      widthSegments: planeGeometry.parameters.widthSegments,
+      heightSegments: planeGeometry.parameters.heightSegments,
+      zDeep: zIncrease,
+      camaraXPos: camera.position.x,
+      camaraYPos: camera.position.y,
+      camaraZPos: camera.position.z,
+      camaraXRot: camera.rotation.x,
+      camaraYRot: camera.rotation.y,
+      camaraZRot: camera.rotation.z,
+    }
   }
-}
-console.log('world.plane', world.plane)
-function onChangePlane() {
-  planeMesh.geometry.dispose()
-  planeMesh.geometry = new THREE.PlaneGeometry(world.plane.width, world.plane.height, world.plane.widthSegments, world.plane.heightSegments);
-  plainRandomZPoints()
-}
+  console.log('world.plane', world.plane)
+  function onChangePlane() {
+    planeMesh.geometry.dispose()
+    planeMesh.geometry = new THREE.PlaneGeometry(world.plane.width, world.plane.height, world.plane.widthSegments, world.plane.heightSegments);
+    plainRandomZPoints()
+  }
 
-function onChangeZDeepPlane() {
-  planeMesh.geometry.dispose();
-  zIncrease = world.plane.zDeep;
-  const { array, arrayInitial, arrayOrigen } = planeMesh.geometry.attributes.position;
-  const newZOrigen = new Float32Array(arrayOrigen)
-  for (let i = 0; i < newZOrigen.length; i += 3) {
+  function onChangeZDeepPlane() {
+    planeMesh.geometry.dispose();
+    zIncrease = world.plane.zDeep;
+    const { array, arrayInitial, arrayOrigen } = planeMesh.geometry.attributes.position;
+    const newZOrigen = new Float32Array(arrayOrigen)
+    for (let i = 0; i < newZOrigen.length; i += 3) {
     /* z */ newZOrigen[i + 2] = arrayInitial[i + 2] * zIncrease;
     /* z */ array[i + 2] = arrayInitial[i + 2] * zIncrease;
+    }
+    planeMesh.geometry.attributes.position.arrayOrigen = newZOrigen;
   }
-  planeMesh.geometry.attributes.position.arrayOrigen = newZOrigen;
+  gui.add(world.plane, 'width', 1, 500).onChange(onChangePlane);
+  gui.add(world.plane, 'height', 1, 500).onChange(onChangePlane);
+  gui.add(world.plane, 'widthSegments', 1, 500).onChange(onChangePlane);
+  gui.add(world.plane, 'heightSegments', 1, 500).onChange(onChangePlane);
+  gui.add(world.plane, 'zDeep', 0, 10.5).onChange(onChangeZDeepPlane);
+  gui.add(world.plane, 'camaraXPos', -300, 300).onChange(() => { camera.position.x = world.plane.camaraXPos });
+  gui.add(world.plane, 'camaraYPos', -300, 300).onChange(() => { camera.position.y = world.plane.camaraYPos });
+  gui.add(world.plane, 'camaraZPos', -300, 300).onChange(() => { camera.position.z = world.plane.camaraZPos });
+  gui.add(world.plane, 'camaraXRot', 0, 5.9).onChange(() => { camera.rotation.x = world.plane.camaraXRot; console.log });
+  gui.add(world.plane, 'camaraYRot', 0, 5.9).onChange(() => { camera.rotation.y = world.plane.camaraYRot; });
+  gui.add(world.plane, 'camaraZRot', 0, 5.9).onChange(() => { camera.rotation.z = world.plane.camaraZRot; });
+  gui.close();
 }
-gui.add(world.plane, 'width', 1, 500).onChange(onChangePlane);
-gui.add(world.plane, 'height', 1, 500).onChange(onChangePlane);
-gui.add(world.plane, 'widthSegments', 1, 500).onChange(onChangePlane);
-gui.add(world.plane, 'heightSegments', 1, 500).onChange(onChangePlane);
-gui.add(world.plane, 'zDeep', 0, 10.5).onChange(onChangeZDeepPlane);
-// gui.add(world.plane, 'camaraXPos', -300, 300).onChange(()=>{camera.position.x = world.plane.camaraXPos});
-// gui.add(world.plane, 'camaraYPos', -300, 300).onChange(()=>{camera.position.y = world.plane.camaraYPos});
-// gui.add(world.plane, 'camaraZPos', -300, 300).onChange(()=>{camera.position.z = world.plane.camaraZPos});
-// gui.add(world.plane, 'camaraXRot', 0, 5.9).onChange(()=>{camera.rotation.x = world.plane.camaraXRot;console.log});
-// gui.add(world.plane, 'camaraYRot', 0, 5.9).onChange(()=>{camera.rotation.y = world.plane.camaraYRot;});
-// gui.add(world.plane, 'camaraZRot', 0, 5.9).onChange(()=>{camera.rotation.z = world.plane.camaraZRot;});
-gui.close();
+addGUIcontrols();
 // #endregion GUI to change props
 
 // #region animation ***************************************************************************/
@@ -243,8 +247,8 @@ function wavePoints() {
   const { array, arrayOrigen, randomValues } = planeMesh.geometry.attributes.position;
   for (let i = 0; i < array.length; i += 3) {
     /* x */ array[i] = arrayOrigen[i] + Math.cos(frame + randomValues[i]);
-    /* y */ array[i + 1] = arrayOrigen[i + 1] + Math.cos(frame * .7 + randomValues[i + 1]);
-    /* z */ array[i + 2] = arrayOrigen[i + 2] + Math.cos(frame + randomValues[i + 2] * 1.5);
+    /* y */ array[i + 1] = arrayOrigen[i + 1] + Math.cos(frame + randomValues[i + 1]);
+    /* z */ array[i + 2] = arrayOrigen[i + 2] + Math.cos(frame + randomValues[i + 2]);
   }
   planeMesh.geometry.attributes.position.needsUpdate = true;
 }
@@ -252,10 +256,12 @@ function wavePoints() {
 // loop
 var frame = 0
 function animate() {
-  frame += 0.005;
+  frame += 0.01;
   requestAnimationFrame(animate);
   trackCollision();
   wavePoints();
+  stars.rotation.x += 0.0005
+  planeMesh.rotation.z += 0.0005
   renderer.render(scene, camera);
 }
 animate(); // start loop
