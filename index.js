@@ -278,7 +278,7 @@ window.threeScript = {
 
 
 
-// #region DOM Elements ***************************************************************************/
+// #region DOM Elements & Events *****************************************************************/
 var warp = false;
 var animating = false;
 
