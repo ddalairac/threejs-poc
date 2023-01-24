@@ -230,15 +230,16 @@ function addGUIcontrols() {
   gui.add(world.plane, 'widthSegments', 1, 500).onChange(onChangePlane);
   gui.add(world.plane, 'heightSegments', 1, 500).onChange(onChangePlane);
   gui.add(world.plane, 'zDeep', 0, 10.5).onChange(onChangeZDeepPlane);
-  gui.add(world.plane, 'camaraXPos', -300, 300).onChange(() => { camera.position.x = world.plane.camaraXPos });
-  gui.add(world.plane, 'camaraYPos', -300, 300).onChange(() => { camera.position.y = world.plane.camaraYPos });
-  gui.add(world.plane, 'camaraZPos', -300, 300).onChange(() => { camera.position.z = world.plane.camaraZPos });
-  gui.add(world.plane, 'camaraXRot', 0, 5.9).onChange(() => { camera.rotation.x = world.plane.camaraXRot; console.log });
-  gui.add(world.plane, 'camaraYRot', 0, 5.9).onChange(() => { camera.rotation.y = world.plane.camaraYRot; });
-  gui.add(world.plane, 'camaraZRot', 0, 5.9).onChange(() => { camera.rotation.z = world.plane.camaraZRot; });
-  gui.close();
+  gui.add(world.plane, 'camaraXPos', -300, 300).onChange(() => { camera.position.x = world.plane.camaraXPos; });
+  gui.add(world.plane, 'camaraYPos', -300, 300).onChange(() => { camera.position.y = world.plane.camaraYPos; });
+  gui.add(world.plane, 'camaraZPos', -300, 300).onChange(() => { camera.position.z = world.plane.camaraZPos; });
+  // rotation Pi * 2
+  gui.add(world.plane, 'camaraXRot', 0, 6.28).onChange(() => { camera.rotation.x = world.plane.camaraXRot; });
+  gui.add(world.plane, 'camaraYRot', 0, 6.28).onChange(() => { camera.rotation.y = world.plane.camaraYRot; });
+  gui.add(world.plane, 'camaraZRot', 0, 6.28).onChange(() => { camera.rotation.z = world.plane.camaraZRot; });
+  // gui.close();
 }
-// addGUIcontrols();
+addGUIcontrols();
 // #endregion GUI to change props
 
 // #region animation ***************************************************************************/
@@ -275,25 +276,62 @@ window.threeScript = {
   scene, camera, frame, addGUIcontrols
 }
 
+
+
+// #region DOM Elements ***************************************************************************/
 gsap.to('.app', {
   opacity: 1,
   y: 0,
-  duration: 2,
+  duration: 1,
   delay: 1,
-  ease:'expo',
+  ease: 'sine',
 });
 gsap.to('h2', {
   opacity: 1,
   y: 0,
-  duration: 2,
+  duration: 1,
   delay: 1.2,
-  ease:'expo',
+  ease: 'sine',
 });
-
 gsap.to('h1', {
   opacity: 1,
   y: 0,
-  duration: 2,
+  duration: 1,
   delay: 1.4,
-  ease:'expo',
+  ease: 'sine',
 });
+gsap.to('button', {
+  opacity: 1,
+  y: 0,
+  duration: 1,
+  delay: 1.6,
+  ease: 'sine',
+});
+
+const button = document.querySelector('button');
+button.addEventListener('click', (e) => {
+  e.preventDefault();
+  gsap.to('.app', {
+    opacity: 0,
+    display: 'none',
+    ease: 'sine',
+  });
+  gsap.to(camera.position, {
+    z: 4.2,
+    duration: 3,
+    ease: 'back.inOut',
+  });
+  gsap.to(camera.rotation, {
+    x: 1.6,
+    duration: 3,
+    ease: 'back.inOut',
+  });
+  gsap.to(camera.position, {
+    y:200,
+    delay: 1.5,
+    duration: 1,
+    ease: 'power3.inOut',
+  });
+
+})
+// #endregion DOM Elements
