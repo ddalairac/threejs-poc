@@ -239,7 +239,7 @@ function addGUIcontrols() {
   gui.add(world.plane, 'camaraZRot', 0, 6.28).onChange(() => { camera.rotation.z = world.plane.camaraZRot; });
   gui.close();
 }
-addGUIcontrols();
+// addGUIcontrols();
 // #endregion GUI to change props
 
 // #region animation ***************************************************************************/
