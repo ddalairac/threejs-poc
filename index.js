@@ -63,9 +63,9 @@ const starGeometry = new THREE.BufferGeometry();
 const starMaterial = new THREE.PointsMaterial({ color: 0xffffff });
 const starVertices = []
 for (let i = 0; i < 10000; i++) {
-  const x = (Math.random() - 0.5) * 2000;
-  const y = (Math.random() - 0.5) * 2000;
-  const z = (Math.random() - 0.5) * 2000;
+  const x = (Math.random() - 0.5) * 3000;
+  const y = (Math.random() - 0.5) * 3000;
+  const z = (Math.random() - 0.5) * 3000;
   starVertices.push(x, y, z);
 }
 starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(
@@ -80,8 +80,9 @@ scene.add(stars);
 // Set poligon color
 function setPointsColors() {
   const colors = []
+  const r = 0, g = 0, b = 0.9; // initial color
   for (let i = 0; i < planeMesh.geometry.attributes.position.count; i++) {
-    colors.push(1, 0, 0);
+    colors.push(r, g, b);
   }
   planeMesh.geometry.setAttribute('color', new THREE.BufferAttribute(
     new Float32Array(colors, /* [0, 0, 1] color goes from 0 to 1 */),
@@ -159,7 +160,7 @@ function trackCollision() {
 
   if (firstMousemove && intersects.length > 0) {
 
-    const initialColor = { r: 0.9, g: 0, b: 0 }
+    const initialColor = { r: 0.6, g: 0, b: 0.9 }
     const hoverColor = { r: 2, g: 0.5, b: 0.5 }
     setIntersectFaceColor(intersects, hoverColor);
 
@@ -237,7 +238,7 @@ function addGUIcontrols() {
   gui.add(world.plane, 'camaraZRot', 0, 5.9).onChange(() => { camera.rotation.z = world.plane.camaraZRot; });
   gui.close();
 }
-addGUIcontrols();
+// addGUIcontrols();
 // #endregion GUI to change props
 
 // #region animation ***************************************************************************/
@@ -261,7 +262,7 @@ function animate() {
   trackCollision();
   wavePoints();
   stars.rotation.x += 0.0005
-  planeMesh.rotation.z += 0.0005
+  planeMesh.rotation.z += 0.0003
   renderer.render(scene, camera);
 }
 animate(); // start loop
@@ -271,5 +272,5 @@ animate(); // start loop
 
 
 window.threeScript = {
-  scene, camera, frame, world, v: 1
+  scene, camera, frame, addGUIcontrols
 }
