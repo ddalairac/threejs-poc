@@ -207,7 +207,7 @@ function addGUIcontrols() {
       camaraZRot: camera.rotation.z,
     }
   }
-  console.log('world.plane', world.plane)
+  
   function onChangePlane() {
     planeMesh.geometry.dispose()
     planeMesh.geometry = new THREE.PlaneGeometry(world.plane.width, world.plane.height, world.plane.widthSegments, world.plane.heightSegments);
@@ -237,7 +237,7 @@ function addGUIcontrols() {
   gui.add(world.plane, 'camaraXRot', 0, 6.28).onChange(() => { camera.rotation.x = world.plane.camaraXRot; });
   gui.add(world.plane, 'camaraYRot', 0, 6.28).onChange(() => { camera.rotation.y = world.plane.camaraYRot; });
   gui.add(world.plane, 'camaraZRot', 0, 6.28).onChange(() => { camera.rotation.z = world.plane.camaraZRot; });
-  // gui.close();
+  gui.close();
 }
 addGUIcontrols();
 // #endregion GUI to change props
@@ -279,43 +279,81 @@ window.threeScript = {
 
 
 // #region DOM Elements ***************************************************************************/
-gsap.to('.app', {
-  opacity: 1,
-  y: 0,
-  duration: 1,
-  delay: 1,
-  ease: 'sine',
-});
-gsap.to('h2', {
-  opacity: 1,
-  y: 0,
-  duration: 1,
-  delay: 1.2,
-  ease: 'sine',
-});
-gsap.to('h1', {
-  opacity: 1,
-  y: 0,
-  duration: 1,
-  delay: 1.4,
-  ease: 'sine',
-});
-gsap.to('button', {
-  opacity: 1,
-  y: 0,
-  duration: 1,
-  delay: 1.6,
-  ease: 'sine',
-});
+var warp = false;
+var animating = false;
 
 const button = document.querySelector('button');
 button.addEventListener('click', (e) => {
   e.preventDefault();
+  if(animating === false){
+    if(!warp){
+      animWarpIn();
+    }else {
+      animWarpBack();
+    }
+    warp = !warp;
+  }
+})
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix(); // 
+  renderer.setSize(innerWidth, innerHeight);
+})
+
+
+function animTextIn() {
+  gsap.to('.app', {
+    display: 'block',
+    opacity: 1,
+    y: 0,
+    duration: 1,
+    delay: 1,
+    ease: 'sine',
+  });
+  gsap.to('h2', {
+    opacity: 1,
+    y: 0,
+    duration: 1,
+    delay: 1.2,
+    ease: 'sine',
+  });
+  gsap.to('h1', {
+    opacity: 1,
+    y: 0,
+    duration: 1,
+    delay: 1.4,
+    ease: 'sine',
+  });
+  gsap.to('button', {
+    opacity: 1,
+    y: 0,
+    duration: 1,
+    delay: 1.6,
+    ease: 'sine',
+  });
+}
+
+function animTextOut() {
   gsap.to('.app', {
     opacity: 0,
     display: 'none',
     ease: 'sine',
+    onComplete: () => {
+      button.innerText = warp ? 'Back to the Sea':'Go to the stars'
+      if(!warp){
+        
+      }
+    }
   });
+}
+
+animTextIn();
+
+function animWarpIn() {
+  animating = true
+  animTextOut();
+
   gsap.to(camera.position, {
     z: 4.2,
     duration: 3,
@@ -327,11 +365,35 @@ button.addEventListener('click', (e) => {
     ease: 'back.inOut',
   });
   gsap.to(camera.position, {
-    y:200,
+    y: 200,
     delay: 1.5,
     duration: 1,
     ease: 'power3.inOut',
+    onComplete: () => {
+      animTextIn();
+      animating = false
+    }
   });
+}
+function animWarpBack() {
+  animTextOut();
+  animating = true
+  gsap.to(camera.position, {
+    z: 9,
+    y: -100,
+    duration: 4,
+    ease: 'power3.inOut',
+  });
+  gsap.to(camera.rotation, {
+    x: 1.2,
+    y: 6.28,
+    duration: 4,
+    ease: 'back.inOut',onComplete: () => {
+      animTextIn();
+      camera.rotation.y = 0;
+      animating = false
+    }
+  });
+}
 
-})
 // #endregion DOM Elements

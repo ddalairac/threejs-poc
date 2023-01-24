@@ -11,8 +11,9 @@ button {
 }
 .app {
   position: fixed;
-  left: calc(50% - 152px);
-  top: calc(50% - 120px);
+  left: 50%;
+  top: 50%;
+  top: calc(50% - 160px);
   z-index: 1;
   color: white;
   display: flex;
@@ -22,6 +23,8 @@ button {
 }
 
 .text {
+  position: relative;
+  left: -50%;
   background: rgba(0, 0, 0, 0.3);
   padding: 30px 60px;
   border-radius: 5px;
