@@ -56,8 +56,23 @@ function plainRandomZPoints() {
   planeMesh.geometry.attributes.position.randomValues = new Float32Array(randomValues)
   setPointsColors();
 }
-
 plainRandomZPoints()
+
+const starGeometry = new THREE.BufferGeometry();
+const starMaterial = new THREE.PointsMaterial({ color: 0xffffff });
+const starVertices = []
+for (let i = 0; i < 10000; i++) {
+  const x = (Math.random() - 0.5) * 2000;
+  const y = (Math.random() - 0.5) * 2000;
+  const z = (Math.random() - 0.5) * 2000;
+  starVertices.push(x,y,z);
+}
+starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(
+  starVertices, 3
+))
+const stars = new THREE.Points(starGeometry, starMaterial);
+scene.add(stars);
+
 // #endregion  Create elements
 
 // #region Element Color ***********************************************************************/
@@ -164,13 +179,12 @@ function trackCollision() {
 }
 // #endregion Hover Event
 
-
 // #region Camera ************************************************************************/
 
-// new OrbitControls(camera, renderer.domElement);
 camera.position.y = -100; /* So is not in the center of the stage */
 camera.position.z = 9; /* So is not in the center of the stage */
 camera.rotation.x = 0.87;
+new OrbitControls(camera, renderer.domElement);
 // #endregion GUI to change props
 
 // #region GUI to change props *****************************************************************/
@@ -222,7 +236,6 @@ gui.add(world.plane, 'zDeep', 0, 10.5).onChange(onChangeZDeepPlane);
 gui.close();
 // #endregion GUI to change props
 
-
 // #region animation ***************************************************************************/
 
 
@@ -230,8 +243,8 @@ function wavePoints() {
   const { array, arrayOrigen, randomValues } = planeMesh.geometry.attributes.position;
   for (let i = 0; i < array.length; i += 3) {
     /* x */ array[i] = arrayOrigen[i] + Math.cos(frame + randomValues[i]);
-    /* y */ array[i + 1] = arrayOrigen[i + 1] + Math.cos(frame*.7 + randomValues[i + 1]);
-    /* z */ array[i + 2] = arrayOrigen[i + 2] + Math.cos(frame + randomValues[i + 2]*1.5);
+    /* y */ array[i + 1] = arrayOrigen[i + 1] + Math.cos(frame * .7 + randomValues[i + 1]);
+    /* z */ array[i + 2] = arrayOrigen[i + 2] + Math.cos(frame + randomValues[i + 2] * 1.5);
   }
   planeMesh.geometry.attributes.position.needsUpdate = true;
 }
