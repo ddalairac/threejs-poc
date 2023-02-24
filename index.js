@@ -3,6 +3,7 @@ import { OrbitControls } from 'OrbitControls'; // mouse controlled camera class,
 import * as DAT from 'datgui'; // live attr ui edit
 import gsap from 'gsap'; // animation lib
 
+export default function setBG3D(){
 // #region Setup 3D stage **********************************************************************/
 const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(
@@ -397,3 +398,5 @@ function animWarpBack() {
 }
 
 // #endregion DOM Elements
+}
+setBG3D()
